@@ -11,17 +11,24 @@ const config = require('./config/database');
 const passport = require('passport');
 mongoose.Promise = global.Promise;
 
-// CONNECT TO DATABASE
-mongoose.connect('mongodb://localhost/nodekb');
-let db = mongoose.connection;
-// ANNOUNCE DB CONNECTION
-db.once('open', function(){
-    console.log('Connected to MongoDB')
-});
-// CHECK FOR DB ERRORS
-db.on('error', function(err){
-    console.log(err);
-});
+// Connect to database either through heroku or local database
+if (process.env.MONGODB_URI) {
+    mongoose.connect(process.env.MONGODB_URI);
+    } else {
+    mongoose.connect('mongodb://localhost/nodekb');
+}
+
+// Announce DB Errors
+mongoose.connection.on('error', function(err) {
+     console.error('MongoDB connection error: ' + err);
+    process.exit(-1);
+    }
+  );
+
+// Announce Database connection
+mongoose.connection.once('open', function() {
+    console.log("Mongoose has connected to MongoDB!");
+  });
 
 
 // INITIATE EXPRESS APP
